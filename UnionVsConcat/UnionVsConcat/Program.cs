@@ -11,22 +11,11 @@ namespace UnionVsConcat
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-
-//            var longList = GetLongList(100000000);
-
-//            var mediumList = GetLongList(10000000);
-
-//            var smallList = GetLongList(10000);
-
-
-////            var finalList = longList.Union(mediumList).Union(smallList);
-//            //var finalList = smallList.Union(mediumList).Union(longList);
-//            //var finalList = smallList.Concat(mediumList).Concat(longList).Distinct();
-//            var finalList = longList.Concat(mediumList).Concat(smallList).Distinct();
-
 
             BenchmarkRunner.Run<AccumulatorTests>();
+
+            //var s = new AccumulatorTests();
+            //var t = s.StraightUpAddThenDistinct();
 
             return;
         }
@@ -50,61 +39,57 @@ namespace UnionVsConcat
             return ret;
         }
 
-        private readonly List<long> longList;
-        private readonly List<long> mediumList;
-        private readonly List<long> smallList;
+        private readonly List<long> _longList;
+        private readonly List<long> _mediumList;
+        private readonly List<long> _smallList;
 
         public AccumulatorTests()
         {
-            longList = GetLongList(1000000);
+            _longList = GetLongList(1000000);
 
-            mediumList = GetLongList(100000);
+            _mediumList = GetLongList(100000);
 
-            smallList = GetLongList(10000);
+            _smallList = GetLongList(10000);
         }
 
         [Benchmark]
         public List<long> UnionAll()
         {
-            //var longList = GetLongList(1000000);
+            var finalList = _longList.Union(_mediumList).Union(_smallList).ToList();
 
-            //var mediumList = GetLongList(100000);
-
-            //var smallList = GetLongList(10000);
-
-            var finalList = longList.Union(mediumList).Union(smallList).ToList();
-
+            //Console.WriteLine($"Final list size: {finalList.Count}");
             return finalList;
         }
 
         [Benchmark]
         public List<long> ConcatAll()
         {
-            //var longList = GetLongList(1000000);
+            var finalList = _longList.Concat(_mediumList).Concat(_smallList).Distinct().ToList();
 
-            //var mediumList = GetLongList(100000);
-
-            //var smallList = GetLongList(10000);
-
-            var finalList = longList.Concat(mediumList).Concat(smallList).Distinct().ToList();
-
+            //Console.WriteLine($"Final list size: {finalList.Count}");
             return finalList;
         }
 
         [Benchmark]
         public List<long> UnionThenConcatAll()
         {
-            //var longList = GetLongList(1000000);
+            var finalList = _longList.Union(_mediumList).Concat(_smallList).ToList();
 
-            //var mediumList = GetLongList(100000);
-
-            //var smallList = GetLongList(10000);
-
-            var finalList = longList.Union(mediumList).Concat(smallList).ToList();
-
+            //Console.WriteLine($"Final list size: {finalList.Count}");
             return finalList;
         }
 
+        [Benchmark]
+        public List<long> StraightUpAddThenDistinct()
+        {
+            var finalList = new List<long>(_longList);
+            finalList.AddRange(_mediumList);
+            finalList.AddRange(_smallList);
+            
+            finalList = finalList.Distinct().ToList();
 
+            //Console.WriteLine($"Final list size: {finalList.Count}");
+            return finalList;
+        }
     }
 }
